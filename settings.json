@@ -1,0 +1,14 @@
+{
+  "server": "localhost",
+  "database": "MarketResearch",
+  "integratedSecurity": true,
+  "connectTimeoutSeconds": 15,
+  "backup": {
+    "path": "C:\\Backups\\MarketResearch",
+    "retentionDays": 14,
+    "scheduledTaskName": "MarketResearch Nightly Backup",
+    "scheduledTime": "02:00"
+  },
+  "archivePath": "archive",
+  "staleAfterDays": 180
+}

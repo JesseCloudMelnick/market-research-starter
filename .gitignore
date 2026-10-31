@@ -1,0 +1,29 @@
+# Local copies of sources. Can be large, can be licensed, never belongs in git.
+# Back this folder up alongside the database.
+archive/
+
+# Database backups and exports
+*.bak
+*.trn
+*.bacpac
+backups/
+exports/
+
+# Local overrides and anything that might hold a secret
+settings.local.json
+*.local.json
+.env
+*.env
+
+# Scratch
+scratch/
+tmp/
+*.log
+
+# Windows and editor noise
+Thumbs.db
+desktop.ini
+.vs/
+.vscode/
+*.swp
+~$*
