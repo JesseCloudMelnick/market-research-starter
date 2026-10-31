@@ -28,7 +28,7 @@ if ($Detailed) { $showLimit = [int]::MaxValue }
 
 function Show-Files {
     param([string[]]$Files, [string]$Indent = '    ')
-    $shown = $Files | Select-Object -First $showLimit
+    $shown = @($Files | Select-Object -First $showLimit)
     foreach ($f in $shown) { Write-Host "$Indent$f" -ForegroundColor DarkGray }
     if ($Files.Count -gt $shown.Count) {
         Write-Host "$Indent... and $($Files.Count - $shown.Count) more (-Detailed to list)" -ForegroundColor DarkGray
@@ -50,8 +50,8 @@ function Get-Frontmatter {
 Write-Host ''
 Write-Host 'Knowledge base' -ForegroundColor Cyan
 
-$entries = Get-ChildItem -Path $knowledgeDir -Filter '*.md' -Recurse |
-           Where-Object { $_.Directory.Name -ne 'templates' }
+$entries = @(Get-ChildItem -Path $knowledgeDir -Filter '*.md' -Recurse |
+             Where-Object { $_.Directory.Name -ne 'templates' })
 
 $entityRefs = @{}
 
@@ -72,8 +72,8 @@ else {
 
         if (-not $fm) { $noFrontmatter += $rel; continue }
 
-        $missing = $required | Where-Object { -not $fm.ContainsKey($_) -or -not $fm[$_] }
-        if ($missing) { $missingFields += "$rel (missing: $($missing -join ', '))" }
+        $missing = @($required | Where-Object { -not $fm.ContainsKey($_) -or -not $fm[$_] })
+        if ($missing.Count -gt 0) { $missingFields += "$rel (missing: $($missing -join ', '))" }
 
         if ($fm.ContainsKey('last_reviewed') -and $fm['last_reviewed']) {
             $parsed = [datetime]::MinValue
@@ -145,8 +145,8 @@ $scanFiles = @()
 $scanFiles += $entries
 $sessionDir = Join-Path $repoRoot 'docs\sessions'
 if (Test-Path $sessionDir) {
-    $scanFiles += Get-ChildItem -Path $sessionDir -Filter '*.md' |
-                  Where-Object { $_.Name -ne 'README.md' }
+    $scanFiles += @(Get-ChildItem -Path $sessionDir -Filter '*.md' |
+                    Where-Object { $_.Name -ne 'README.md' })
 }
 
 $citations = @()
@@ -160,7 +160,8 @@ foreach ($f in $scanFiles) {
     }
 }
 
-Write-Host ("  {0,-26} {1} in {2} file(s)" -f 'found', $citations.Count, ($citations.File | Select-Object -Unique).Count)
+$citationFiles = @($citations | ForEach-Object { $_.File } | Select-Object -Unique)
+Write-Host ("  {0,-26} {1} in {2} file(s)" -f 'found', $citations.Count, $citationFiles.Count)
 
 if ($SkipDatabase) {
     Write-Host '  (database check skipped)' -ForegroundColor DarkGray

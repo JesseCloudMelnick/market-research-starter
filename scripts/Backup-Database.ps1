@@ -57,9 +57,16 @@ $file = Join-Path $backupDir "$($cfg.database)-$stamp.bak"
 Write-Host "Backing up $($cfg.database) to $file ... " -NoNewline
 
 $safeName = $cfg.database -replace '\]', ']]'
+
+# Express does not support backup compression, so ask the server rather than assume.
+$engineEdition = [int](Invoke-ResearchScalar -Config $cfg -Database 'master' `
+    -Query "SELECT CAST(SERVERPROPERTY('EngineEdition') AS int)")
+$withOptions = 'FORMAT, INIT, CHECKSUM, STATS = 25'
+if ($engineEdition -ne 4) { $withOptions = 'FORMAT, INIT, COMPRESSION, CHECKSUM, STATS = 25' }
+
 Invoke-ResearchNonQuery -Config $cfg -Database 'master' -TimeoutSeconds 3600 -Parameters @{ path = $file } -Query @"
 BACKUP DATABASE [$safeName] TO DISK = @path
-WITH FORMAT, INIT, COMPRESSION, CHECKSUM, STATS = 25;
+WITH $withOptions;
 "@ | Out-Null
 
 Write-Host 'ok'

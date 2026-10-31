@@ -10,7 +10,9 @@
         Invoke-ResearchQuery -Config $cfg -Query 'SELECT TOP 5 * FROM research.vw_CurrentObservation'
 #>
 
-Set-StrictMode -Version Latest
+# Deliberately does not Set-StrictMode. This file is meant to be dot-sourced into an
+# interactive session, and strict mode would leak into the researcher's shell and break
+# unrelated commands. The standalone scripts set it for themselves.
 
 $script:RepoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 

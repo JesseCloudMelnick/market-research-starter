@@ -67,25 +67,25 @@ Write-Host "Schema" -ForegroundColor Cyan
 
 $expectedTables = @('EntityType','SourceType','Source','CollectionRun','Entity','EntityAlias',
                     'EntityRelationship','Metric','Observation','Thesis','ThesisEvidence','SchemaMigration')
-$actualTables = (Invoke-ResearchQuery -Config $cfg -Query @'
+$actualTables = @((Invoke-ResearchQuery -Config $cfg -Query @'
 SELECT name FROM sys.tables WHERE SCHEMA_NAME(schema_id) = 'research'
-'@) | ForEach-Object { $_.name }
+'@) | ForEach-Object { $_.name })
 
-$missingTables = $expectedTables | Where-Object { $actualTables -notcontains $_ }
+$missingTables = @($expectedTables | Where-Object { $actualTables -notcontains $_ })
 Report -Name "Tables present ($($actualTables.Count))" -Ok ($missingTables.Count -eq 0) `
        -Detail $(if ($missingTables) { 'Missing: ' + ($missingTables -join ', ') } else { '' })
 
 $expectedViews = @('vw_CurrentObservation','vw_EntityLatestMetric','vw_StaleFact','vw_SourceUsage',
                    'vw_ThesisScorecard','vw_CollectionCoverage','vw_ThinEntity','vw_SupersededObservation')
-$actualViews = (Invoke-ResearchQuery -Config $cfg -Query @'
+$actualViews = @((Invoke-ResearchQuery -Config $cfg -Query @'
 SELECT name FROM sys.views WHERE SCHEMA_NAME(schema_id) = 'research'
-'@) | ForEach-Object { $_.name }
+'@) | ForEach-Object { $_.name })
 
-$missingViews = $expectedViews | Where-Object { $actualViews -notcontains $_ }
+$missingViews = @($expectedViews | Where-Object { $actualViews -notcontains $_ })
 Report -Name "Views present ($($actualViews.Count))" -Ok ($missingViews.Count -eq 0) `
        -Detail $(if ($missingViews) { 'Missing: ' + ($missingViews -join ', ') } else { '' })
 
-$migrations = Invoke-ResearchQuery -Config $cfg -Query 'SELECT MigrationName, AppliedAt FROM research.SchemaMigration ORDER BY MigrationName'
+$migrations = @(Invoke-ResearchQuery -Config $cfg -Query 'SELECT MigrationName, AppliedAt FROM research.SchemaMigration ORDER BY MigrationName')
 Report -Name "Migrations applied ($($migrations.Count))" -Ok ($migrations.Count -gt 0) `
        -Detail (($migrations | ForEach-Object { $_.MigrationName }) -join ', ')
 
